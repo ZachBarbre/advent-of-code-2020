@@ -8,17 +8,30 @@ try {
     console.error(error)
 }
 
-let dataArray = data.split('\n');
-let answer = '';
+const dataArray = data.split('\n');
 
-for (const initialNum of dataArray) {
-    for (const testNum of dataArray) {
-        if (parseInt(initialNum) + parseInt(testNum) === 2020) {
-            answer = initialNum * testNum
-            break;
+const productOfTwoAddTo2020 = (dataArray) => { 
+    for (const initialNum of dataArray) {
+        for (const testNum of dataArray) {
+            if (parseInt(initialNum) + parseInt(testNum) === 2020) {
+                return initialNum * testNum
+            }
         }
     }
-    if (answer) break;
 }
 
-console.log(answer)
+console.log(productOfTwoAddTo2020(dataArray));
+
+const productOfThreeAddTo2020 = (dataArray) => {
+    for (const initialNum of dataArray) {
+        for (const secondNum of dataArray) {
+            for (const thirdNum of dataArray) {
+                if (parseInt(initialNum) + parseInt(secondNum) + parseInt(thirdNum) === 2020) {
+                    return initialNum * secondNum * thirdNum;
+                }
+            }
+        }
+    }
+}
+
+console.log(productOfThreeAddTo2020(dataArray));
