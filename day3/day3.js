@@ -24,19 +24,41 @@ const forestArray = data.split('\r\n');
 //     '.#..#...#.#',
 // ];
 
-const numberOfTreesHit = (forestArray) => {
-    const treesHitObj = forestArray.reduce((acc, treeLine) => {
-        if (acc.index >= treeLine.length) {
-            acc = {...acc, index: acc.index - treeLine.length}
+const numberOfTreesHit = (forestArray, slopeObj) => {
+    const { right, down } = slopeObj
+    const treesHitObj = forestArray.reduce((acc, treeLine, index) => {
+        if (index % down !== 0) {
+            return acc
         }
-        if (treeLine[acc.index] === '#') {
-            return { index: acc.index + 3, hits: acc.hits + 1 }
+        if (acc.treelineIndex >= treeLine.length) {
+            acc = {...acc, treelineIndex: acc.treelineIndex - treeLine.length}
         }
-        return { ...acc, index: acc.index + 3 }
-    }, {index: 0, hits: 0});
+        if (treeLine[acc.treelineIndex] === '#') {
+            return { treelineIndex: acc.treelineIndex + right, hits: acc.hits + 1 }
+        }
+        return { ...acc, treelineIndex: acc.treelineIndex + right }
+    }, {treelineIndex: 0, hits: 0});
 
     return treesHitObj.hits
 }
 
+const slopeArr = [
+    {right: 1, down: 1},
+    {right: 3, down: 1},
+    {right: 5, down: 1},
+    {right: 7, down: 1},
+    {right: 1, down: 2}
+]
 
-console.log(numberOfTreesHit(forestArray))
+const productOfTreesHit = (forestArray, slopeArr) => {
+    const productTreeHit = slopeArr.reduce((acc, slope) => {
+        const treesHit = numberOfTreesHit(forestArray, slope);
+        if (treesHit === 0 ) {
+            return acc;
+        }
+        return acc * treesHit;
+    }, 1);
+    return productTreeHit;
+} 
+
+console.log(productOfTreesHit(forestArray, slopeArr));
