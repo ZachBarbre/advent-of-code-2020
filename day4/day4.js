@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { isValidFieldPresentOnly, isValidField } = require("./isValid");
 let data = '';
 const path = process.argv[2]
 
@@ -10,43 +11,62 @@ try {
 
 const rawPassportsArray = data.split('\r\n');
 
-const extractkeys = (str) => {
-    const keyValueStrings = str.split(' ');
-    const keys = keyValueStrings.map(keyValue => {
-       return keyValue.substring(0, keyValue.indexOf(':'));
-    });
-    return keys;
-}
-
-const parsedPassports = rawPassportsArray.reduce((acc, raw, index) => {
-    if (index === 0) {
-        return acc;
-    }
-    if (!raw) {
-        return [...acc, []];
-    }
-    const passportArray = acc.pop();
-    return [
-            ...acc, 
-            passportArray.concat(extractkeys(raw))
-        ];
-}, [extractkeys(rawPassportsArray[0])]);
-
-const isValid = (passport) => {
-    const requiedFields = ['hcl', 'iyr', 'eyr', 'ecl', 'pid', 'byr', 'hgt'];
-    for (const field of requiedFields) {
-        if (!passport.includes(field)) {
-            return false
+const parsePassports = (rawPassportsArray, extractCallback) => {
+    const parsedPassports = rawPassportsArray.reduce((acc, raw, index) => {
+        if (index === 0) {
+            return acc;
         }
-    }
-    return true
+        if (!raw) {
+            return [...acc, []];
+        }
+        const passportArray = acc.pop();
+        return [
+                ...acc, 
+                passportArray.concat(extractCallback(raw))
+            ];
+    }, [extractCallback(rawPassportsArray[0])])
+    return parsedPassports
 }
 
-const numValidPassports = parsedPassports.reduce((acc, passport) =>{
-    if (isValid(passport)) {
-        return acc + 1
-    }
-    return acc
-}, 0);
+const numberOfValidPassports = (parsedPassports, isValidCallback) => {
+    return parsedPassports.reduce((acc, passport) => {
+        if (isValidCallback(passport)) {
+            return acc + 1
+        }
+        return acc
+    }, 0);
+}
 
-console.log(numValidPassports)
+const countValidPassportsFieldsOnly = (rawPassportsArray) => {
+    const extractKeys = (str) => {
+        const keyValueStrings = str.split(' ');
+        const keys = keyValueStrings.map(keyValue => {
+           return keyValue.substring(0, keyValue.indexOf(':'));
+        });
+        return keys;
+    }
+
+    const parsedPassports = parsePassports(rawPassportsArray, extractKeys)
+    
+    const numValidPassports = numberOfValidPassports(parsedPassports, isValidFieldPresentOnly)
+    return numValidPassports
+}
+
+console.log(countValidPassportsFieldsOnly(rawPassportsArray));
+
+const countValidPassports = (rawPassportsArray) => {
+    const extractKeyVaules = (str) => {
+        const keyValueStrings = str.split(' ');
+        const keys = keyValueStrings.map(keyValue => {
+           return keyValue.split(':');
+        });
+        return keys;
+    }
+    
+    const parsedPassports = parsePassports(rawPassportsArray, extractKeyVaules)
+    const parsedPassportsToObjects = parsedPassports.map(passport => Object.fromEntries(passport))
+    const numValidPassports = numberOfValidPassports(parsedPassportsToObjects, isValidField)
+    return numValidPassports
+}
+
+console.log(countValidPassports(rawPassportsArray))
