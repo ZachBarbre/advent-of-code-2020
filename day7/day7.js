@@ -57,7 +57,7 @@ function buildBagObjSimple(bagStr) {
     const bagObj = { name : `${bagArray[0]}-${bagArray[1]}`, chlidren: buildChildArray(rawChildArray) }
     return bagObj
 }
-
+// probably should have used a map...
 const simpleBagsArray = rawBagsArray.map(bag => buildBagObjSimple(bag))
 const bagsArray = rawBagsArray.map(bag => buildBagObj(bag))
 const flatBagsTree = bagsArray.reduce((acc, bag) => {
@@ -102,6 +102,33 @@ function bagSearchNumCanContain(targetBag, flatBagsTree, bagsArray) {
  function numberOfBagsInside(targetBag, flatBagsTree, bagsArray) {
     console.log(flatBagsTree),
     console.log(bagsArray)
+    const firstChildArray = flatBagsTree[targetBag]
+
+    const countBagsInside = (childArray) => {
+        if (childArray[0].hasOwnProperty('other-bags.')) {
+            return 0
+        }
+        const countainsCount = childArray.reduce((acc, bag) => {
+            return acc + bag[Object.keys(bag)[0]]
+        }, 0)
+        return countainsCount
+    }
+
+    const countTotalBags = (target) => {
+        console.log(target)
+        let count
+        if (target === 'other-bags.') {
+            return 0
+        }
+        const newTargets = flatBagsTree[target].map(bag => Object.keys(bag)[0])
+        const targetBagCount = countBagsInside(flatBagsTree[target])
+        for (const newTarget of newTargets) {
+            count = countBagsInside(flatBagsTree[target]) + countTotalBags(newTarget, flatBagsTree[newTarget])
+            console.log(count)
+        }
+        return count
+    }
+    console.log(countTotalBags(targetBag))
  }
 
- (numberOfBagsInside('shiny-gold', flatBagsTree, bagsArray))
+ (numberOfBagsInside('shiny-gold', flatBagsTree, simpleBagsArray))
