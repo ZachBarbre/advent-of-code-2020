@@ -9,34 +9,34 @@ try {
     console.error(error)
 }
 
-// const xmasData = data.split('\r\n')
+const xmasData = data.split('\r\n')
 
-const xmasData = [
-    '35',
-    '20',
-    '15',
-    '25',
-    '47',
-    '40',
-    '62',
-    '55',
-    '65',
-    '95',
-    '102',
-    '117',
-    '150',
-    '182',
-    '127',
-    '219',
-    '299',
-    '277',
-    '309',
-    '576',
-]
+// const xmasData = [
+//     '35',
+//     '20',
+//     '15',
+//     '25',
+//     '47',
+//     '40',
+//     '62',
+//     '55',
+//     '65',
+//     '95',
+//     '102',
+//     '117',
+//     '150',
+//     '182',
+//     '127',
+//     '219',
+//     '299',
+//     '277',
+//     '309',
+//     '576',
+// ]
 
 const xmasDataAsInt = xmasData.map(datum => parseInt(datum));
 
-const numOfPrevNums = 5;
+const numOfPrevNums = 25;
 
 function checkPreviousNumber(check, prevNumsArray) {
     for (const testNum of prevNumsArray) {
@@ -60,12 +60,24 @@ function findInvaidNumber(xmasDataArray) {
 console.log(findInvaidNumber(xmasDataAsInt));
 
 function isSumInArray(target, array) {
-    
+    let acc = 0
+    for (let i = 0; i < array.length; i += 1) {
+        for (const num of array.slice(i)) {
+            acc += num
+            if (acc === target) {
+                return array.slice(i, array.indexOf(num) + 1)
+            }
+        }
+        acc = 0
+    }
+    return ['no','ne']
 }
 
 function findMinMaxSumOfInvalidNumber(xmasDataArray) {
     const invalidNum = findInvaidNumber(xmasDataArray)
-    return invalidNum
+    const addsToInvalidArray = isSumInArray(invalidNum, xmasDataArray)
+    const sorted = addsToInvalidArray.sort((a, b) => a - b)
+    return sorted[0] + sorted[sorted.length - 1]
 }
 
 console.log((findMinMaxSumOfInvalidNumber(xmasDataAsInt)))
